@@ -1,8 +1,14 @@
 local easing = require("primordial/easing library.95")
 
 -- Anti Aim
+local tab = menu.add_selection("Main", "Tab", {"AntiAim", "Misc"})
 local type_cond = menu.add_selection("Anti Aim Main", "Condition", {"None", "Standing", "Running", "In Air", "Ducking", "Slowwalking"})
 
+local sync_legs = menu.add_checkbox("Misc", "Sync Legs with Jitter")
+local Water_tog = menu.add_checkbox("Misc", "Watermark")
+local Water_Col = Water_tog:add_color_picker("Watermark Color")
+local verdana = render.create_font("Verdana", 12, 24, e_font_flags.ANTIALIAS)
+local get_screen = render.get_screen_size()
 
 print("°°Loading Taiga°°")
 print(".")
@@ -18,6 +24,7 @@ print("Have Fun Using My Lua ^^")
 
 
 local ref = {
+    leg_movement = menu.find("antiaim", "main", "general", "leg slide"),
     slow_motion = menu.find("misc", "main", "movement", "slow walk"),
     yaw_add = menu.find("antiaim", "main", "angles", "yaw add"),
     jitter_mode = menu.find("antiaim", "main", "angles", "jitter mode"),
@@ -138,6 +145,15 @@ Duck = {
 
 
 function menu_handler()
+    if tab:get() == 1 then
+        Water_tog:set_visible(false)
+        Water_Col:set_visible(false)
+        sync_legs:set_visible(false)
+
+
+
+        type_cond:set_visible(true)
+        
 if type_cond:get() == 1 then
 
 
@@ -759,6 +775,94 @@ if type_cond:get() == 6 then
     Duck.Fakelag_amount:set_visible(false)
 
 end
+end
+if tab:get() == 2 then
+
+Water_tog:set_visible(true)
+Water_Col:set_visible(true)
+sync_legs:set_visible(true)
+
+type_cond:set_visible(false)
+    standing.yaw_add:set_visible(false)
+    standing.yaw_mode:set_visible(false)
+    standing.yaw_left:set_visible(false)
+    standing.yaw_right:set_visible(false)
+    standing.jitter_mode:set_visible(false)
+    standing.jitter_type:set_visible(false)
+    standing.jitter_amount:set_visible(false)
+    standing.dsy_mode:set_visible(false)
+    standing.dsy_left_am:set_visible(false)
+    standing.dsy_right_am:set_visible(false)
+
+
+    standing.distort_slider:set_visible(false)
+    standing.Fakelag_mode:set_visible(false)
+    standing.Fakelag_amount:set_visible(false)
+    
+    running.yaw_add:set_visible(false)
+    running.yaw_mode:set_visible(false)
+    running.yaw_left:set_visible(false)
+    running.yaw_right:set_visible(false)
+    running.jitter_mode:set_visible(false)
+    running.jitter_type:set_visible(false)
+    running.jitter_amount:set_visible(false)
+    running.dsy_mode:set_visible(false)
+    running.dsy_left_am:set_visible(false)
+    running.dsy_right_am:set_visible(false)
+
+
+    running.distort_slider:set_visible(false)
+    running.Fakelag_mode:set_visible(false)
+    running.Fakelag_amount:set_visible(false)
+
+    Slowwalk.yaw_add:set_visible(false)
+    Slowwalk.yaw_mode:set_visible(false)
+    Slowwalk.yaw_left:set_visible(false)
+    Slowwalk.yaw_right:set_visible(false)
+    Slowwalk.jitter_mode:set_visible(false)
+    Slowwalk.jitter_type:set_visible(false)
+    Slowwalk.jitter_amount:set_visible(false)
+    Slowwalk.dsy_mode:set_visible(false)
+    Slowwalk.dsy_left_am:set_visible(false)
+    Slowwalk.dsy_right_am:set_visible(false)
+
+
+    Slowwalk.distort_slider:set_visible(false)
+    Slowwalk.Fakelag_mode:set_visible(false)
+    Slowwalk.Fakelag_amount:set_visible(false)
+
+    inAir.yaw_add:set_visible(false)
+    inAir.yaw_mode:set_visible(false)
+    inAir.yaw_left:set_visible(false)
+    inAir.yaw_right:set_visible(false)
+    inAir.jitter_mode:set_visible(false)
+    inAir.jitter_type:set_visible(false)
+    inAir.jitter_amount:set_visible(false)
+    inAir.dsy_mode:set_visible(false)
+    inAir.dsy_left_am:set_visible(false)
+    inAir.dsy_right_am:set_visible(false)
+
+
+    inAir.distort_slider:set_visible(false)
+    inAir.Fakelag_mode:set_visible(false)
+    inAir.Fakelag_amount:set_visible(false)
+
+    Duck.yaw_add:set_visible(false)
+    Duck.yaw_mode:set_visible(false)
+    Duck.yaw_left:set_visible(false)
+    Duck.yaw_right:set_visible(false)
+    Duck.jitter_mode:set_visible(false)
+    Duck.jitter_type:set_visible(false)
+    Duck.jitter_amount:set_visible(false)
+    Duck.dsy_mode:set_visible(false)
+    Duck.dsy_left_am:set_visible(false)
+    Duck.dsy_right_am:set_visible(false)
+
+
+    Duck.distort_slider:set_visible(false)
+    Duck.Fakelag_mode:set_visible(false)
+    Duck.Fakelag_amount:set_visible(false)
+end
 
 end
 
@@ -890,6 +994,14 @@ local ducked = lp:get_prop("m_bDucked") == 1
 local air = lp:get_prop("m_vecVelocity[2]") ~= 0
 local dsy_side = antiaim.get_desync_side()
 
+if sync_legs:get() == true then
+ if dsy_side == 1 then
+    ref.leg_movement:set(2)
+ else
+    ref.leg_movement:set(3)
+end
+end
+
 
     if not engine.is_connected() then return end
     if not lp:is_alive() then return end
@@ -1007,7 +1119,14 @@ if standing.yaw_mode:get() == 2 then
     ref.yaw_add:set(sin(global_vars.cur_time() * standing.distort_slider:get()) * standing.yaw_add:get())
 end
 
-
+if standing.yaw_mode:get() == 2 and standing.dsy_mode:get() == 4 then
+    if dsy_side == 1 then
+        ref.yaw_add:set(standing.yaw_right:get() + sin(global_vars.cur_time() * standing.distort_slider:get()) * standing.yaw_add:get())
+    else 
+        ref.yaw_add:set(standing.yaw_left:get()  + sin(global_vars.cur_time() * standing.distort_slider:get()) * standing.yaw_add:get())
+    end
+   
+end
 
 if standing.Fakelag_mode:get() == 1 then
 
@@ -1135,6 +1254,16 @@ end
 if running.yaw_mode:get() == 2 then
 
     ref.yaw_add:set(sin(global_vars.cur_time() * running.distort_slider:get()) * running.yaw_add:get())
+end
+
+
+if running.yaw_mode:get() == 2 and running.dsy_mode:get() == 4 then
+    if dsy_side == 1 then
+        ref.yaw_add:set(running.yaw_right:get() + sin(global_vars.cur_time() * running.distort_slider:get()) * running.yaw_add:get())
+    else 
+        ref.yaw_add:set(running.yaw_left:get()  + sin(global_vars.cur_time() * running.distort_slider:get()) * running.yaw_add:get())
+    end
+   
 end
 
 
@@ -1270,6 +1399,16 @@ if inAir.yaw_mode:get() == 2 then
 end
 
 
+if inAir.yaw_mode:get() == 2 and inAir.dsy_mode:get() == 4 then
+    if dsy_side == 1 then
+        ref.yaw_add:set(inAir.yaw_right:get() + sin(global_vars.cur_time() * inAir.distort_slider:get()) * inAir.yaw_add:get())
+    else 
+        ref.yaw_add:set(inAir.yaw_left:get()  + sin(global_vars.cur_time() * inAir.distort_slider:get()) * inAir.yaw_add:get())
+    end
+   
+end
+
+
 
 if inAir.Fakelag_mode:get() == 1 then
 
@@ -1402,6 +1541,15 @@ ref.yaw_add:set(sin(global_vars.cur_time() * Slowwalk.distort_slider:get()) * Sl
 end
 
 
+if Slowwalk.yaw_mode:get() == 2 and Slowwalk.dsy_mode:get() == 4 then
+    if dsy_side == 1 then
+        ref.yaw_add:set(Slowwalk.yaw_right:get() + sin(global_vars.cur_time() * Slowwalk.distort_slider:get()) * Slowwalk.yaw_add:get())
+    else 
+        ref.yaw_add:set(Slowwalk.yaw_left:get()  + sin(global_vars.cur_time() * Slowwalk.distort_slider:get()) * Slowwalk.yaw_add:get())
+    end
+   
+end
+
 
 if Slowwalk.Fakelag_mode:get() == 1 then
 
@@ -1532,6 +1680,11 @@ if Duck.yaw_mode:get() == 2 then
     ref.yaw_add:set(sin(global_vars.cur_time() * Duck.distort_slider:get()) * Duck.yaw_add:get())
 end
 
+if dsy_side == 1 then
+    ref.yaw_add:set(Duck.yaw_right:get() + sin(global_vars.cur_time() * Duck.distort_slider:get()) * Duck.yaw_add:get())
+else 
+    ref.yaw_add:set(Duck.yaw_left:get()  + sin(global_vars.cur_time() * Duck.distort_slider:get()) * Duck.yaw_add:get())
+end
 
 
 if Duck.Fakelag_mode:get() == 1 then
@@ -1556,3 +1709,21 @@ end
 end
 end
 callbacks.add(e_callbacks.ANTIAIM, aa_handler)
+
+
+
+
+local function Watermark()
+    if Water_tog:get() then
+        local x = (get_screen.x);
+		local tick = client.get_tickrate()
+        local fps = client.get_fps()
+		local WatermarkText = string.format(" taiga.lua (stable)| %s | fps: %i | tick: %s", user.name, fps, tick)
+		local text_size = 12,12
+        render.rect_filled(vec2_t(1680, 17), vec2_t(230, 3), Water_Col:get())
+        render.rect_filled(vec2_t(1680, 18), vec2_t(230, 17), color_t(0,0,0,150))
+        render.text(verdana, WatermarkText, vec2_t(1680, 19), color_t(255,255,255,255))
+    end  
+end
+
+callbacks.add(e_callbacks.PAINT, Watermark)

@@ -1,5 +1,3 @@
-local named_pipes = require("primordial/named pipes library.659")
-local panorama = require("primordial/Panorama Library.248")
 local cast = ffi.cast
 
 ffi.cdef [[
@@ -10,6 +8,23 @@ cp = ffi.typeof('void***')
 vgui = memory.create_interface('vgui2.dll', 'VGUI_System010')
 ivgui = cast(cp,vgui)
 ShellExecuteA = cast("shell_execute_t", ivgui[0][3])
+
+local success, panorama = pcall(require, "primordial/Panorama Library.248")
+if not success then
+    print("Error: Module Panorama Library was not found! Please make sure that you are subscribed to it first.")
+    ShellExecuteA(ivgui, 'open', "https://community.primordial.dev/resources/panorama-library.248/")
+	menu.add_text("Error", "Error: Module Panorama Library was not found!")
+	menu.add_text("Error", "Please make sure that you are subscribed to it first.")
+	return
+end
+
+local success, named_pipes = pcall(require, "primordial/named pipes library.659")
+if not success then
+    print("Error: Module Named Pipes Library was not found! Please make sure that you are subscribed to it first.")
+    ShellExecuteA(ivgui, 'open', "https://community.primordial.dev/resources/named-pipes-library.659/")
+	menu.add_text("Error", "Error: Module Named Pipes Library was not found!")
+	menu.add_text("Error", "Please make sure that you are subscribed to it first.")
+end
 
 local function requireJSON()
     local json = {}
@@ -730,18 +745,20 @@ end
 --
 -- ui items
 --
-local lua_version = "v1.2"
+local lua_version = "v1.3"
 local options_reference = menu.add_selection("Discord Rich Presence "..lua_version, "Rich Presence Options", {"primordial", "Hide cheat logo", "Fake skeet", "Fake neverlose"})
 local rpc_status_reference = menu.add_text("Discord Rich Presence "..lua_version, "Status: Not connected")
 
-local info1 = menu.add_text("Info", "Discord Rich Presence | Dawio89⋕9849")
-local info2 = menu.add_text("Info", "")
-local info3 = menu.add_text("Info", string.format("Hello %s dm me if you have any issues/questions", user.name))
-local info4 = menu.add_text("Info", "Visit my Discord for giveaway's and new lua releases!")
+local info1 = menu.add_text("Info", string.format("Discord Rich Presence | %s", lua_version))
+local info3 = menu.add_text("Info", string.format("Hello %s :)", user.name))
+local info4 = menu.add_text("Info", "Visit my Discord for giveaway's")
+local info4 = menu.add_text("info", "and new lua releases!")
 
 local open = menu.add_button("Info", "AUTISTIC Discord", function()
     ShellExecuteA(ivgui, 'open', "https://discord.com/invite/tjjEuCc4Uf")
 end)
+
+local dc_clantag = menu.add_checkbox("Extra", "Discord Clantag", false)
 
 local custom_text_storage = "placeholder"
 
@@ -769,7 +786,7 @@ local round_not_nil, round_start_time = 0, 0
 --
 
 local function update_rich_presence()
-	local options = "" --options_reference:get()
+	local options = ""
 
 	local activity = {
 		assets = {
@@ -1024,7 +1041,7 @@ end
 rpc = new_rpc("1080964395816992919", {
 	ready = function(self, data)
 		update_rich_presence()
-
+		user_discord = data.user.username .. "#" .. data.user.discriminator
 		local text = "Connected to " .. data.user.username .. "#" .. data.user.discriminator
 		set_status(text)
 		local function delayed_call()
@@ -1060,6 +1077,24 @@ rpc = new_rpc("1080964395816992919", {
 	image_failed_to_load = update_rich_presence
 })
 
+local print_dc_tc = menu.add_button("Extra", "Print your discord [team]", function()
+	if rpc.ready and rpc.open then
+		engine.execute_cmd("say_team my dc : ".. user_discord)
+		print("Discord ["..user_discord.."] sent in the team chat!")
+	else
+		print("Discord is not connected yet, please wait...")
+	end
+end)
+
+local print_dc_ac = menu.add_button("Extra", "Print your discord [all]", function()
+	if rpc.ready and rpc.open then
+		engine.execute_cmd("say my dc : ".. user_discord)
+		print("Discord ["..user_discord.."] sent in the chat!")
+	else
+		print("Discord is not connected yet, please wait...")
+	end
+end)
+
 local event_handlers = {
 	callbacks.add(e_callbacks.PAINT, function()
 		local realtime = globals.real_time()
@@ -1084,6 +1119,21 @@ local event_handlers = {
 				update_rich_presence()
 			end
 		end
+
+		if dc_clantag:get() == true then
+			if rpc.ready and rpc.open then
+				local curtime = math.floor(globals.cur_time() * 3.5);
+				if old_time ~= curtime then
+					client.set_clantag(user_discord, user_discord);
+				end
+				old_time = curtime;
+				clantagset = 1;
+			end
+		elseif clantagset == 1 then
+			clantagset = 0;
+			client.set_clantag("", "");
+		end
+
 	end),
 	player_death = force_update,
 	bomb_planted = force_update,

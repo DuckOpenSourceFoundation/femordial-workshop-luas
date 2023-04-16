@@ -511,6 +511,7 @@ local function check_bullet_impact(event)
     if not engine.is_connected() or not engine.is_in_game() or not entity_list.get_local_player():is_alive() or not _ui.antiaim.antibrute:get() then return end
 
     local attacker = entity_list.get_player_from_userid(event.userid)
+    if entity_list.get_local_player():get_prop("m_iTeamNum") == attacker:get_prop("m_iTeamNum") then return end
     if attacker and attacker ~= entity_list.get_local_player() then
         local impact = vec3_t(event.x, event.y, event.z)
         local attacker_eyepos = entity_list.get_player_from_userid(event.userid):get_eye_position()
@@ -729,6 +730,7 @@ local trashtalk = function(event)
     local attacker = entity_list.get_player_from_userid(event.attacker, true)
     local userid = entity_list.get_player_from_userid(event.userid, true)
 
+    if entity_list.get_local_player():get_prop("m_iTeamNum") == attacker:get_prop("m_iTeamNum") then return end
     if _ui.other.tt_revenge:get() then 
         if userid == entity_list.get_local_player() then 
             target = attacker 
